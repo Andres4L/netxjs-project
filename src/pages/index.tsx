@@ -1,18 +1,18 @@
-import { gql, useQuery } from "@apollo/client";
-import { Button } from "@/components/ui/button";
+"use client";
 
-const HELLO_QUERY = gql`
-  query Hello {
-    hello
+import { signIn, signOut, useSession } from "next-auth/react";
+
+export default function AuthStatus() {
+  const { data: session } = useSession();
+
+  if (session) {
+    return (
+      <div>
+        <p>Hola, {session.user?.name} ({session.user?.email})</p>
+        <button onClick={() => signOut()}>Cerrar sesión</button>
+      </div>
+    );
   }
-`;
 
-export default function Home() {
-  const { data } = useQuery(HELLO_QUERY);
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <Button>¡Hola, Shadcn!</Button>
-      <h1 className="text-2xl font-bold">{data?.hello}</h1>
-    </main>
-  );
+  return <button onClick={() => signIn("auth0")}>Iniciar sesión</button>;
 }

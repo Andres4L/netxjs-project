@@ -13,30 +13,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Tabla de roles
-model Role {
-  id   String @id @default(uuid())
-  name String @unique
-  users User[]
-}
-
-// Tabla de usuarios
 model User {
   id       String  @id @default(uuid())
   name     String
   email    String  @unique
   phone    String?
-  roleId   String
-  role     Role    @relation(fields: [roleId], references: [id])
-  transactions Transaction[]
+  role     Role    @default(USER)
+  movements Movement[]
+  sessions  Session[]
 }
 
-// Tabla de transacciones (ingresos y egresos)
-model Transaction {
-  id        String   @id @default(uuid())
-  concept   String
-  amount    Float
-  date      DateTime @default(now())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+model Movement {
+  id       String  @id @default(uuid())
+  concept  String
+  amount   Float
+  date     DateTime @default(now())
+  user     User @relation(fields: [userId], references: [id])
+  userId   String
 }
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+  sessionToken String   @unique
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
